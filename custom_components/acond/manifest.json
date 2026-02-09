@@ -1,12 +1,12 @@
 {
-  "domain": "integration_blueprint",
-  "name": "Integration blueprint",
+  "domain": "acond",
+  "name": "Acond",
   "codeowners": [
-    "@ludeeus"
+    "@AmazingDreams"
   ],
   "config_flow": true,
-  "documentation": "https://github.com/ludeeus/integration_blueprint",
+  "documentation": "https://github.com/AmazingDreams/acond-ha",
   "iot_class": "cloud_polling",
-  "issue_tracker": "https://github.com/ludeeus/integration_blueprint/issues",
+  "issue_tracker": "https://github.com/AmazingDreams/acond-ha/issues",
   "version": "0.1.0"
 }
