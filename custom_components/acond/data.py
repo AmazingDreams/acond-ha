@@ -1,4 +1,4 @@
-"""Custom types for integration_blueprint."""
+"""Custom types for acond."""
 
 from __future__ import annotations
 
@@ -9,17 +9,17 @@ if TYPE_CHECKING:
     from homeassistant.config_entries import ConfigEntry
     from homeassistant.loader import Integration
 
-    from .api import IntegrationBlueprintApiClient
-    from .coordinator import BlueprintDataUpdateCoordinator
+    from .api import AcondApiClient
+    from .coordinator import AcondDataUpdateCoordinator
 
 
-type IntegrationBlueprintConfigEntry = ConfigEntry[IntegrationBlueprintData]
+type AcondConfigEntry = ConfigEntry[AcondData]
 
 
 @dataclass
-class IntegrationBlueprintData:
-    """Data for the Blueprint integration."""
+class AcondData:
+    """Data for the Acond integration."""
 
-    client: IntegrationBlueprintApiClient
-    coordinator: BlueprintDataUpdateCoordinator
+    client: AcondApiClient
+    coordinator: AcondDataUpdateCoordinator
     integration: Integration

@@ -1,8 +1,40 @@
-"""Constants for integration_blueprint."""
+"""Constants for acond."""
 
 from logging import Logger, getLogger
 
 LOGGER: Logger = getLogger(__package__)
 
-DOMAIN = "integration_blueprint"
-ATTRIBUTION = "Data provided by http://jsonplaceholder.typicode.com/"
+DOMAIN = "acond"
+ATTRIBUTION = "Data provided by https://www.acond.cz/"
+
+HTTP_FOUND = 302
+
+ACOND_ACONOMIS_DATA_MAPPINGS = {
+    # State
+    "COMPRESSOR_ACTIVE": "__T61E4AC91_BOOL_i",
+    "FAN_ACTIVE": "__TF4B3F468_BOOL_i",
+    "PRIMARY_CIRCUIT_PUMP_ACTIVE": "__T2BA2EA36_BOOL_i",
+    "SECONDARY_CIRCUIT_PUMP_ACTIVE": "__T6F64FA70_BOOL_i",
+    "DEFROST_ACTIVE": "__T880DC46F_BOOL_i",
+    "BIVALENCE_ACTIVE": "__TD3998BF7_BOOL_i",
+    "DHW_ACTIVE": "__T80F610D7_BOOL_i",
+    # Power
+    "ENERGY_CONSUMPTION": "__T7CC39460_REAL_.0f",
+    "ENERGY_CONSUMPTION_TODAY": "__T95EA3F43_REAL_.2f",
+    "POWER_CONSUMPTION": "__TC90E768E_REAL_.2f",
+    # Heat
+    "HEAT_QUANTITY": "__T6C18EDAA_REAL_.0f",
+    "HEAT_QUANTITY_TODAY": "__TDAE695C6_REAL_.2f",
+    "HEAT_PRODUCTION": "__T8E9C4A5B_REAL_.2f",
+    # COP / SCOP
+    "COP": "__T0E9A681D_REAL_.2f",
+    "SCOP": "__T465DEE3C_REAL_.2f",
+    # Temperatures
+    "DHW_TEMPERATURE": "__T881A25AA_REAL_.1f",
+    "DHW_TEMPERATURE_REQUIRED": "__T1E34E7DC_REAL_.1f",
+    "OUTLET_TEMPERATURE": "__T9E13248E_REAL_.1f",
+    "ELECTRIC_HEATER_OUTLET_TEMPERATURE": "__T9D96D36A_REAL_.1f",
+    "INLET_TEMPERATURE": "__T50A32455_REAL_.1f",
+    "OUTDOOR_TEMPERATURE": "__T033A2538_REAL_.1f",
+    "OUTDOOR_TEMPERATURE_AVERAGE": "__TDE3BFC02_REAL_.1f",
+}

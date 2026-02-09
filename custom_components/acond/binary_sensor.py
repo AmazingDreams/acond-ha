@@ -1,4 +1,4 @@
-"""Binary sensor platform for integration_blueprint."""
+"""Binary sensor platform for acond."""
 
 from __future__ import annotations
 
@@ -10,52 +10,109 @@ from homeassistant.components.binary_sensor import (
     BinarySensorEntityDescription,
 )
 
-from .entity import IntegrationBlueprintEntity
+from .const import ACOND_ACONOMIS_DATA_MAPPINGS, LOGGER
+from .entity import AcondEntity
 
 if TYPE_CHECKING:
     from homeassistant.core import HomeAssistant
     from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-    from .coordinator import BlueprintDataUpdateCoordinator
-    from .data import IntegrationBlueprintConfigEntry
+    from .coordinator import AcondDataUpdateCoordinator
+    from .data import AcondConfigEntry
 
-ENTITY_DESCRIPTIONS = (
+ACOND_ACONOMIS_BINARY_SENSOR_DESCRIPTIONS = (
     BinarySensorEntityDescription(
-        key="integration_blueprint",
-        name="Integration Blueprint Binary Sensor",
-        device_class=BinarySensorDeviceClass.CONNECTIVITY,
+        key=ACOND_ACONOMIS_DATA_MAPPINGS["FAN_ACTIVE"],
+        name="Fan",
+        device_class=BinarySensorDeviceClass.RUNNING,
+        icon="mdi:fan",
+    ),
+    BinarySensorEntityDescription(
+        key=ACOND_ACONOMIS_DATA_MAPPINGS["COMPRESSOR_ACTIVE"],
+        name="Compressor",
+        device_class=BinarySensorDeviceClass.RUNNING,
+        icon="mdi:engine",
+    ),
+    BinarySensorEntityDescription(
+        key=ACOND_ACONOMIS_DATA_MAPPINGS["PRIMARY_CIRCUIT_PUMP_ACTIVE"],
+        name="Primary Circuit Pump",
+        device_class=BinarySensorDeviceClass.RUNNING,
+        icon="mdi:water-pump",
+    ),
+    BinarySensorEntityDescription(
+        key=ACOND_ACONOMIS_DATA_MAPPINGS["SECONDARY_CIRCUIT_PUMP_ACTIVE"],
+        name="Secondary Circuit Pump",
+        device_class=BinarySensorDeviceClass.RUNNING,
+        icon="mdi:water-pump",
+    ),
+    BinarySensorEntityDescription(
+        key=ACOND_ACONOMIS_DATA_MAPPINGS["DEFROST_ACTIVE"],
+        name="Defrost",
+        device_class=BinarySensorDeviceClass.RUNNING,
+        icon="mdi:snowflake",
+    ),
+    BinarySensorEntityDescription(
+        key=ACOND_ACONOMIS_DATA_MAPPINGS["BIVALENCE_ACTIVE"],
+        name="Bivalence",
+        device_class=BinarySensorDeviceClass.RUNNING,
+        icon="mdi:water-boiler",
+    ),
+    BinarySensorEntityDescription(
+        key=ACOND_ACONOMIS_DATA_MAPPINGS["DHW_ACTIVE"],
+        name="DHW",
+        device_class=BinarySensorDeviceClass.RUNNING,
+        icon="mdi:shower",
     ),
 )
 
 
 async def async_setup_entry(
     hass: HomeAssistant,  # noqa: ARG001 Unused function argument: `hass`
-    entry: IntegrationBlueprintConfigEntry,
+    entry: AcondConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
-    """Set up the binary_sensor platform."""
+    """Set up the binary sensor platform."""
     async_add_entities(
-        IntegrationBlueprintBinarySensor(
+        AcondBinarySensor(
             coordinator=entry.runtime_data.coordinator,
             entity_description=entity_description,
         )
-        for entity_description in ENTITY_DESCRIPTIONS
+        for entity_description in ACOND_ACONOMIS_BINARY_SENSOR_DESCRIPTIONS
     )
 
 
-class IntegrationBlueprintBinarySensor(IntegrationBlueprintEntity, BinarySensorEntity):
-    """integration_blueprint binary_sensor class."""
+class AcondBinarySensor(AcondEntity, BinarySensorEntity):
+    """Acond Binary Sensor class."""
 
     def __init__(
         self,
-        coordinator: BlueprintDataUpdateCoordinator,
+        coordinator: AcondDataUpdateCoordinator,
         entity_description: BinarySensorEntityDescription,
     ) -> None:
-        """Initialize the binary_sensor class."""
+        """Initialize the binary sensor class."""
         super().__init__(coordinator)
         self.entity_description = entity_description
+        self._attr_unique_id = entity_description.key
 
     @property
-    def is_on(self) -> bool:
-        """Return true if the binary_sensor is on."""
-        return self.coordinator.data.get("title", "") == "foo"
+    def is_on(self) -> bool | None:
+        """Return true if the binary sensor is on."""
+        key = self.entity_description.key
+        value = self.coordinator.data.get(key)
+
+        LOGGER.debug(
+            "Binary sensor '%s' raw value: %s", self.entity_description.name, value
+        )
+
+        if value is None:
+            return None
+
+        try:
+            return bool(int(value))
+        except (TypeError, ValueError):
+            LOGGER.warning(
+                "Binary sensor '%s' could not convert value to int: %s",
+                self.entity_description.name,
+                value,
+            )
+            return None
