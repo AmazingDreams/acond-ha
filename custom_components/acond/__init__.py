@@ -25,8 +25,9 @@ if TYPE_CHECKING:
     from .data import AcondConfigEntry
 
 PLATFORMS: list[Platform] = [
-    Platform.SENSOR,
     Platform.BINARY_SENSOR,
+    Platform.SENSOR,
+    Platform.WATER_HEATER,
 ]
 
 

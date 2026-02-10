@@ -2,18 +2,22 @@
 
 from __future__ import annotations
 
-from re import L
+import contextlib
 import socket
 from typing import Any
+import asyncio
 
 import aiohttp
 import async_timeout
-
 from bs4 import BeautifulSoup
-from custom_components.acond.const import LOGGER
+
+from custom_components.acond.const import ACOND_ACONOMIS_DATA_MAPPINGS, LOGGER
 
 PAGE_LOGIN = "SYSWWW/LOGIN.XML"
-PAGE_DATA = "PAGE214.XML"
+PAGE_MEASUREMENT = "PAGE214.XML"
+PAGE_CONTROL = "PAGE206.XML"
+PAGE_SETTINGS = "PAGE207.XML"
+PAGE_EQUITHERM = "PAGE225.XML"
 
 HTTP_FOUND = 302
 
@@ -65,16 +69,38 @@ class AcondApiClient:
             cookie_jar=self._cookie_jar,
         )
 
-    async def async_get_data(self) -> Any:
+    async def async_get_all(self) -> Any:
         """Get data from the API."""
-        response = await self._api_wrapper_retry_unauthenticated(
-            method="get",
-            url=f"http://{self._ip_address}/{PAGE_DATA}",
+        tasks = (
+            await self.async_get_measurements(),
+            await self.async_get_controls(),
+            # Currently gives encoding error, not needed anyway
+            # await self.async_get_settings(),
+            await self.async_get_equitherm(),
         )
 
-        LOGGER.debug("async_get_data response: %s", response)
+        merged: dict[str, Any] = {}
+        for result in tasks:
+            if isinstance(result, dict):
+                merged.update(result)
 
-        return self._map_response(await response.text())
+        return merged
+
+    async def async_get_measurements(self) -> Any:
+        """Get data from the API."""
+        return await self._async_get_page(PAGE_MEASUREMENT)
+
+    async def async_get_controls(self) -> Any:
+        """Get data from the API."""
+        return await self._async_get_page(PAGE_CONTROL)
+
+    async def async_get_settings(self) -> Any:
+        """Get data from the API."""
+        return await self._async_get_page(PAGE_SETTINGS)
+
+    async def async_get_equitherm(self) -> Any:
+        """Get data from the API."""
+        return await self._async_get_page(PAGE_EQUITHERM)
 
     async def login(self) -> Any:
         """Login to the API."""
@@ -91,13 +117,41 @@ class AcondApiClient:
         if login_response.status != HTTP_FOUND:
             raise AcondApiClientAuthenticationError("Login failed")
 
+    async def async_set_dhw_temperature(self, temperature: float) -> None:
+        """Set new target temperature for domestic hot water."""
+        set_temperature_key = ACOND_ACONOMIS_DATA_MAPPINGS[
+            "SET_DHW_TEMPERATURE_REQUIRED"
+        ]
+
+        data = aiohttp.FormData()
+        data.add_field(f"{set_temperature_key}={temperature:.1f}", "")
+
+        response = await self._api_wrapper_retry_unauthenticated(
+            method="post",
+            url=f"http://{self._ip_address}/{PAGE_CONTROL}",
+            data=data,
+        )
+
+        _verify_response_or_raise(response)
+
+    async def _async_get_page(self, page: str) -> Any:
+        """Get a page from the API."""
+        response = await self._api_wrapper_retry_unauthenticated(
+            method="get",
+            url=f"http://{self._ip_address}/{page}",
+        )
+
+        LOGGER.debug("async_get_page response: %s", response)
+
+        return self._map_response(await response.text())
+
     async def _api_wrapper_retry_unauthenticated(
         self,
         method: str,
         url: str,
         data: aiohttp.FormData | None = None,
         headers: dict | None = None,
-        attempt=0,
+        attempt: int = 0,
     ) -> aiohttp.ClientResponse:
         response = await self._api_wrapper(
             method=method,
@@ -161,5 +215,23 @@ class AcondApiClient:
     def _map_response(self, str_response: str) -> Any:
         """Map response."""
         soup = BeautifulSoup(str_response, "lxml-xml")
+        results = {}
 
-        return {elem.get("NAME"): elem.get("VALUE") for elem in soup.find_all("INPUT")}
+        for elem in soup.find_all("INPUT"):
+            name = str(elem.get("NAME"))
+            value = str(elem.get("VALUE"))
+
+            if name is None or value is None:
+                LOGGER.warning("Input tag found without name or value: %s", elem)
+                continue
+
+            with contextlib.suppress(TypeError, ValueError):
+                if name.endswith("f"):
+                    value = float(value) or 0
+
+                if name.endswith("BOOL_i"):
+                    value = bool(int(value)) or False
+
+            results[name] = value
+
+        return results

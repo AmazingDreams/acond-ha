@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
-from custom_components.acond.const import LOGGER
 from homeassistant.exceptions import ConfigEntryAuthFailed
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
@@ -12,6 +11,7 @@ from .api import (
     AcondApiClientAuthenticationError,
     AcondApiClientError,
 )
+from .const import ACOND_ACONOMIS_DATA_MAPPINGS
 
 if TYPE_CHECKING:
     from .data import AcondConfigEntry
@@ -26,13 +26,27 @@ class AcondDataUpdateCoordinator(DataUpdateCoordinator):
     async def _async_update_data(self) -> Any:
         """Update data via library."""
         try:
-            data = await self.config_entry.runtime_data.client.async_get_data()
-
-            LOGGER.debug("Data updated: %s", data)
-
-            return data
-
+            return await self.config_entry.runtime_data.client.async_get_all()
         except AcondApiClientAuthenticationError as exception:
             raise ConfigEntryAuthFailed(exception) from exception
         except AcondApiClientError as exception:
             raise UpdateFailed(exception) from exception
+
+    def get_operating_mode(self) -> str | None:
+        """Get current operating mode."""
+
+        key = ACOND_ACONOMIS_DATA_MAPPINGS["OPERATING_MODE"]
+        return self.data.get(key) if self.data else None
+
+    def is_compressor_active(self) -> bool | None:
+        """Get whether the heat pump is active."""
+
+        key = ACOND_ACONOMIS_DATA_MAPPINGS["COMPRESSOR_ACTIVE"]
+
+        return self.data.get(key) if self.data else None
+
+    def is_dhw_active(self) -> bool | None:
+        """Get whether domestic hot water is active."""
+
+        key = ACOND_ACONOMIS_DATA_MAPPINGS["DHW_ACTIVE"]
+        return self.data.get(key) if self.data else None

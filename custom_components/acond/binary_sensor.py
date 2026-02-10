@@ -57,12 +57,6 @@ ACOND_ACONOMIS_BINARY_SENSOR_DESCRIPTIONS = (
         device_class=BinarySensorDeviceClass.RUNNING,
         icon="mdi:water-boiler",
     ),
-    BinarySensorEntityDescription(
-        key=ACOND_ACONOMIS_DATA_MAPPINGS["DHW_ACTIVE"],
-        name="DHW",
-        device_class=BinarySensorDeviceClass.RUNNING,
-        icon="mdi:shower",
-    ),
 )
 
 
@@ -98,21 +92,4 @@ class AcondBinarySensor(AcondEntity, BinarySensorEntity):
     def is_on(self) -> bool | None:
         """Return true if the binary sensor is on."""
         key = self.entity_description.key
-        value = self.coordinator.data.get(key)
-
-        LOGGER.debug(
-            "Binary sensor '%s' raw value: %s", self.entity_description.name, value
-        )
-
-        if value is None:
-            return None
-
-        try:
-            return bool(int(value))
-        except (TypeError, ValueError):
-            LOGGER.warning(
-                "Binary sensor '%s' could not convert value to int: %s",
-                self.entity_description.name,
-                value,
-            )
-            return None
+        return self.coordinator.data.get(key)

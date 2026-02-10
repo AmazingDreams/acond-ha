@@ -4,8 +4,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from custom_components.acond.const import ACOND_ACONOMIS_DATA_MAPPINGS
-from custom_components.acond.data import AcondConfigEntry
+from click import option
 from homeassistant.components.sensor import (
     SensorDeviceClass,
     SensorEntity,
@@ -13,6 +12,8 @@ from homeassistant.components.sensor import (
     SensorStateClass,
 )
 
+from .const import ACOND_ACONOMIS_DATA_MAPPINGS, AcondAconomisOperatingMode
+from .data import AcondConfigEntry
 from .entity import AcondEntity
 
 if TYPE_CHECKING:
@@ -23,6 +24,16 @@ if TYPE_CHECKING:
     from .data import AcondConfigEntry
 
 ACOND_ACONOMIS_ENTITY_DESCRIPTIONS = (
+    SensorEntityDescription(
+        key=ACOND_ACONOMIS_DATA_MAPPINGS["OPERATING_MODE"],
+        name="Operating Mode",
+        icon="mdi:heat-pump",
+        device_class=SensorDeviceClass.ENUM,
+        options=[
+            AcondAconomisOperatingMode.MANUALLY,
+            AcondAconomisOperatingMode.EQUITHERM,
+        ],
+    ),
     # Power related sensors
     SensorEntityDescription(
         key=ACOND_ACONOMIS_DATA_MAPPINGS["ENERGY_CONSUMPTION"],
@@ -96,23 +107,6 @@ ACOND_ACONOMIS_ENTITY_DESCRIPTIONS = (
     ),
     # Temperatures
     SensorEntityDescription(
-        key=ACOND_ACONOMIS_DATA_MAPPINGS["DHW_TEMPERATURE"],
-        name="DHW Temperature",
-        device_class=SensorDeviceClass.TEMPERATURE,
-        state_class=SensorStateClass.MEASUREMENT,
-        icon="mdi:thermometer",
-        native_unit_of_measurement="°C",
-        suggested_display_precision=1,
-    ),
-    SensorEntityDescription(
-        key=ACOND_ACONOMIS_DATA_MAPPINGS["DHW_TEMPERATURE_REQUIRED"],
-        name="DHW Temperature Required",
-        device_class=SensorDeviceClass.TEMPERATURE,
-        icon="mdi:thermometer",
-        native_unit_of_measurement="°C",
-        suggested_display_precision=1,
-    ),
-    SensorEntityDescription(
         key=ACOND_ACONOMIS_DATA_MAPPINGS["OUTLET_TEMPERATURE"],
         name="Outlet Temperature",
         device_class=SensorDeviceClass.TEMPERATURE,
@@ -151,6 +145,15 @@ ACOND_ACONOMIS_ENTITY_DESCRIPTIONS = (
     SensorEntityDescription(
         key=ACOND_ACONOMIS_DATA_MAPPINGS["OUTDOOR_TEMPERATURE_AVERAGE"],
         name="Outdoor Temperature Average",
+        device_class=SensorDeviceClass.TEMPERATURE,
+        state_class=SensorStateClass.MEASUREMENT,
+        icon="mdi:thermometer",
+        native_unit_of_measurement="°C",
+        suggested_display_precision=1,
+    ),
+    SensorEntityDescription(
+        key=ACOND_ACONOMIS_DATA_MAPPINGS["EQUITHERM_TARGET_RETURN_WATER_TEMPERATURE"],
+        name="Equitherm Target Return Water Temperature",
         device_class=SensorDeviceClass.TEMPERATURE,
         state_class=SensorStateClass.MEASUREMENT,
         icon="mdi:thermometer",
@@ -209,22 +212,12 @@ class AcondSensor(AcondEntity, SensorEntity):
 
         Returns electrical power in kW, or None if inputs are missing/invalid.
         """
-        heat = self._get_float_value(ACOND_ACONOMIS_DATA_MAPPINGS["HEAT_PRODUCTION"])
-        cop = self._get_float_value(ACOND_ACONOMIS_DATA_MAPPINGS["COP"])
+        heat = self.coordinator.data.get(
+            ACOND_ACONOMIS_DATA_MAPPINGS["HEAT_PRODUCTION"]
+        )
+        cop = self.coordinator.data.get(ACOND_ACONOMIS_DATA_MAPPINGS["COP"])
 
         if heat is None or cop in (None, 0):
             return 0
 
         return heat / cop
-
-    def _get_float_value(self, key: str) -> float | None:
-        """
-        Get a float value from coordinator data by given key.
-
-        Returns None if the value is missing or cannot be converted to float.
-        """
-        value = self.coordinator.data.get(key)
-        try:
-            return None if value is None else float(value)
-        except (TypeError, ValueError):
-            return None
