@@ -12,7 +12,7 @@ from homeassistant.components.sensor import (
     SensorStateClass,
 )
 
-from .const import ACOND_ACONOMIS_DATA_MAPPINGS, AcondAconomisOperatingMode
+from .const import ACOND_ACONOMIS_DATA_MAPPINGS, AcondRegulationMode
 from .data import AcondConfigEntry
 from .entity import AcondEntity
 
@@ -25,13 +25,13 @@ if TYPE_CHECKING:
 
 ACOND_ACONOMIS_ENTITY_DESCRIPTIONS = (
     SensorEntityDescription(
-        key=ACOND_ACONOMIS_DATA_MAPPINGS["OPERATING_MODE"],
-        name="Operating Mode",
+        key=ACOND_ACONOMIS_DATA_MAPPINGS["REGULATION_MODE"],
+        name="Regulation Mode",
         icon="mdi:heat-pump",
         device_class=SensorDeviceClass.ENUM,
         options=[
-            AcondAconomisOperatingMode.MANUALLY,
-            AcondAconomisOperatingMode.EQUITHERM,
+            AcondRegulationMode.MANUALLY,
+            AcondRegulationMode.EQUITHERM,
         ],
     ),
     # Power related sensors
@@ -217,7 +217,7 @@ class AcondSensor(AcondEntity, SensorEntity):
         )
         cop = self.coordinator.data.get(ACOND_ACONOMIS_DATA_MAPPINGS["COP"])
 
-        if heat is None or cop in (None, 0):
+        if heat in (None, 0) or cop in (None, 0):
             return 0
 
         return heat / cop

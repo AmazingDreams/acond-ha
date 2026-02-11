@@ -10,7 +10,7 @@ ATTRIBUTION = "Data provided by https://www.acond.cz/"
 HTTP_FOUND = 302
 
 
-class AcondAconomisOperatingMode:
+class AcondRegulationMode:
     """Operating modes for Acond Aconomis."""
 
     MANUALLY = "MANUALLY"
@@ -19,7 +19,7 @@ class AcondAconomisOperatingMode:
 
 ACOND_ACONOMIS_DATA_MAPPINGS = {
     # Modes
-    "OPERATING_MODE": "__TA9A7CFD0_STRING[10]_s",
+    "REGULATION_MODE": "__TA9A7CFD0_STRING[10]_s",
     "MANUAL_TARGET_RETURN_WATER_TEMPERATURE": "__T61D2108E_REAL_.1f",
     "EQUITHERM_TARGET_RETURN_WATER_TEMPERATURE": "__TB1292215_REAL_.1f",
     # State
