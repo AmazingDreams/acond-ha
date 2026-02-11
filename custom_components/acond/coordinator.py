@@ -32,10 +32,10 @@ class AcondDataUpdateCoordinator(DataUpdateCoordinator):
         except AcondApiClientError as exception:
             raise UpdateFailed(exception) from exception
 
-    def get_operating_mode(self) -> str | None:
+    def get_regulation_mode(self) -> str | None:
         """Get current operating mode."""
 
-        key = ACOND_ACONOMIS_DATA_MAPPINGS["OPERATING_MODE"]
+        key = ACOND_ACONOMIS_DATA_MAPPINGS["REGULATION_MODE"]
         return self.data.get(key) if self.data else None
 
     def is_compressor_active(self) -> bool | None:

@@ -67,7 +67,7 @@ class AcondHeatingWaterHeater(AcondEntity, WaterHeaterEntity):
         """Return the list of supported features."""
         features = super().supported_features
 
-        if self.coordinator.get_operating_mode() == AcondRegulationMode.MANUALLY:
+        if self.coordinator.get_regulation_mode() == AcondRegulationMode.MANUALLY:
             features |= WaterHeaterEntityFeature.TARGET_TEMPERATURE
 
         return features
@@ -84,7 +84,7 @@ class AcondHeatingWaterHeater(AcondEntity, WaterHeaterEntity):
         """Return the target temperature."""
         key = (
             ACOND_ACONOMIS_DATA_MAPPINGS["MANUAL_TARGET_RETURN_WATER_TEMPERATURE"]
-            if self.coordinator.get_operating_mode() == AcondRegulationMode.MANUALLY
+            if self.coordinator.get_regulation_mode() == AcondRegulationMode.MANUALLY
             else ACOND_ACONOMIS_DATA_MAPPINGS[
                 "EQUITHERM_TARGET_RETURN_WATER_TEMPERATURE"
             ]
