@@ -193,31 +193,7 @@ class AcondSensor(AcondEntity, SensorEntity):
 
     @property
     def native_value(self) -> float | str | None:
-        """
-        Return the native value of the sensor.
-
-        Recalculate `POWER_CONSUMPTION` from heat production and actual COP because
-        upstream-provided power values are unreliable.
-        """
+        """Return the native value of the sensor."""
         key = self.entity_description.key
 
-        if key == ACOND_ACONOMIS_DATA_MAPPINGS["POWER_CONSUMPTION"]:
-            return self._calculate_power_consumption()
-
         return self.coordinator.data.get(key)
-
-    def _calculate_power_consumption(self) -> float | None:
-        """
-        Calculate electrical power consumption from heat production and COP.
-
-        Returns electrical power in kW, or None if inputs are missing/invalid.
-        """
-        heat = self.coordinator.data.get(
-            ACOND_ACONOMIS_DATA_MAPPINGS["HEAT_PRODUCTION"]
-        )
-        cop = self.coordinator.data.get(ACOND_ACONOMIS_DATA_MAPPINGS["COP"])
-
-        if heat in (None, 0) or cop in (None, 0):
-            return 0
-
-        return heat / cop

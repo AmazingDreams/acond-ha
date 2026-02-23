@@ -30,7 +30,7 @@ PLATFORMS: list[Platform] = [
     Platform.WATER_HEATER,
 ]
 
-UPDATE_INTERVAL = timedelta(seconds=1)
+UPDATE_INTERVAL = timedelta(seconds=5)
 
 
 # https://developers.home-assistant.io/docs/config_entries_index/#setting-up-an-entry
