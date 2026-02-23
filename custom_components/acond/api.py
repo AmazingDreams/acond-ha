@@ -5,7 +5,6 @@ from __future__ import annotations
 import contextlib
 import socket
 from typing import Any
-import asyncio
 
 import aiohttp
 import async_timeout
@@ -153,6 +152,7 @@ class AcondApiClient:
         headers: dict | None = None,
         attempt: int = 0,
     ) -> aiohttp.ClientResponse:
+        """Send an API request and retries exactly once if it fails with an authentication error."""  # noqa: E501
         response = await self._api_wrapper(
             method=method,
             url=url,
@@ -235,3 +235,7 @@ class AcondApiClient:
             results[name] = value
 
         return results
+
+    async def close(self) -> None:
+        """Close the session."""
+        await self._session.close()
