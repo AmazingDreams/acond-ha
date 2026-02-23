@@ -33,8 +33,7 @@ class AcondDataUpdateCoordinator(DataUpdateCoordinator):
             raise UpdateFailed(exception) from exception
 
     def get_regulation_mode(self) -> str | None:
-        """Get current operating mode."""
-
+        """Get current regulation mode."""
         key = ACOND_ACONOMIS_DATA_MAPPINGS["REGULATION_MODE"]
         return self.data.get(key) if self.data else None
 
@@ -47,6 +46,5 @@ class AcondDataUpdateCoordinator(DataUpdateCoordinator):
 
     def is_dhw_active(self) -> bool | None:
         """Get whether domestic hot water is active."""
-
         key = ACOND_ACONOMIS_DATA_MAPPINGS["DHW_ACTIVE"]
         return self.data.get(key) if self.data else None

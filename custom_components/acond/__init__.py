@@ -11,7 +11,7 @@ from datetime import timedelta
 from ipaddress import ip_address
 from typing import TYPE_CHECKING
 
-from homeassistant.const import CONF_PASSWORD, CONF_USERNAME, CONF_IP_ADDRESS, Platform
+from homeassistant.const import CONF_IP_ADDRESS, CONF_PASSWORD, CONF_USERNAME, Platform
 from homeassistant.loader import async_get_loaded_integration
 
 from .api import AcondApiClient
@@ -30,6 +30,8 @@ PLATFORMS: list[Platform] = [
     Platform.WATER_HEATER,
 ]
 
+UPDATE_INTERVAL = timedelta(seconds=1)
+
 
 # https://developers.home-assistant.io/docs/config_entries_index/#setting-up-an-entry
 async def async_setup_entry(
@@ -41,7 +43,7 @@ async def async_setup_entry(
         hass=hass,
         logger=LOGGER,
         name=DOMAIN,
-        update_interval=timedelta(seconds=30),
+        update_interval=UPDATE_INTERVAL,
     )
     entry.runtime_data = AcondData(
         client=AcondApiClient(
