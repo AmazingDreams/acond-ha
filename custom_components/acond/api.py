@@ -133,6 +133,23 @@ class AcondApiClient:
 
         _verify_response_or_raise(response)
 
+    async def async_set_heating_temperature(self, temperature: float) -> None:
+        """Set new target temperature for heating."""
+        set_temperature_key = ACOND_ACONOMIS_DATA_MAPPINGS[
+            "SET_HEATING_TEMPERATURE_REQUIRED"
+        ]
+
+        data = aiohttp.FormData()
+        data.add_field(f"{set_temperature_key}={temperature:.1f}", "")
+
+        response = await self._api_wrapper_retry_unauthenticated(
+            method="post",
+            url=f"http://{self._ip_address}/{PAGE_CONTROL}",
+            data=data,
+        )
+
+        _verify_response_or_raise(response)
+
     async def _async_get_page(self, page: str) -> Any:
         """Get a page from the API."""
         response = await self._api_wrapper_retry_unauthenticated(

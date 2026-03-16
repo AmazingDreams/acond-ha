@@ -107,11 +107,10 @@ class AcondHeatingWaterHeater(AcondEntity, WaterHeaterEntity):
 
     async def async_set_temperature(self, **kwargs) -> None:
         """Set new target temperature."""
-        # TODO
-        # if (temperature := kwargs.get(ATTR_TEMPERATURE)) is not None:
-        #    await self.coordinator.config_entry.runtime_data.client.async_set_dhw_temperature(
-        #        temperature
-        #    )
+        if (temperature := kwargs.get(ATTR_TEMPERATURE)) is not None:
+            await self.coordinator.config_entry.runtime_data.client.async_set_heating_temperature(
+                temperature
+            )
 
 
 class AcondDomesticHotWaterHeater(AcondEntity, WaterHeaterEntity):

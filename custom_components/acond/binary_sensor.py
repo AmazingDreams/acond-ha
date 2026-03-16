@@ -22,37 +22,37 @@ if TYPE_CHECKING:
 
 ACOND_ACONOMIS_BINARY_SENSOR_DESCRIPTIONS = (
     BinarySensorEntityDescription(
-        key=ACOND_ACONOMIS_DATA_MAPPINGS["FAN_ACTIVE"],
+        key="FAN_ACTIVE",
         name="Fan",
         device_class=BinarySensorDeviceClass.RUNNING,
         icon="mdi:fan",
     ),
     BinarySensorEntityDescription(
-        key=ACOND_ACONOMIS_DATA_MAPPINGS["COMPRESSOR_ACTIVE"],
+        key="COMPRESSOR_ACTIVE",
         name="Compressor",
         device_class=BinarySensorDeviceClass.RUNNING,
         icon="mdi:engine",
     ),
     BinarySensorEntityDescription(
-        key=ACOND_ACONOMIS_DATA_MAPPINGS["PRIMARY_CIRCUIT_PUMP_ACTIVE"],
+        key="PRIMARY_CIRCUIT_PUMP_ACTIVE",
         name="Primary Circuit Pump",
         device_class=BinarySensorDeviceClass.RUNNING,
         icon="mdi:water-pump",
     ),
     BinarySensorEntityDescription(
-        key=ACOND_ACONOMIS_DATA_MAPPINGS["SECONDARY_CIRCUIT_PUMP_ACTIVE"],
+        key="SECONDARY_CIRCUIT_PUMP_ACTIVE",
         name="Secondary Circuit Pump",
         device_class=BinarySensorDeviceClass.RUNNING,
         icon="mdi:water-pump",
     ),
     BinarySensorEntityDescription(
-        key=ACOND_ACONOMIS_DATA_MAPPINGS["DEFROST_ACTIVE"],
+        key="DEFROST_ACTIVE",
         name="Defrost",
         device_class=BinarySensorDeviceClass.RUNNING,
         icon="mdi:snowflake",
     ),
     BinarySensorEntityDescription(
-        key=ACOND_ACONOMIS_DATA_MAPPINGS["BIVALENCE_ACTIVE"],
+        key="BIVALENCE_ACTIVE",
         name="Bivalence",
         device_class=BinarySensorDeviceClass.RUNNING,
         icon="mdi:water-boiler",
@@ -91,5 +91,5 @@ class AcondBinarySensor(AcondEntity, BinarySensorEntity):
     @property
     def is_on(self) -> bool | None:
         """Return true if the binary sensor is on."""
-        key = self.entity_description.key
+        key = ACOND_ACONOMIS_DATA_MAPPINGS.get(self.entity_description.key)
         return self.coordinator.data.get(key)
