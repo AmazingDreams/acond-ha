@@ -10,7 +10,7 @@ import aiohttp
 import async_timeout
 from bs4 import BeautifulSoup
 
-from custom_components.acond.const import ACOND_ACONOMIS_DATA_MAPPINGS, LOGGER
+from .const import ACOND_ACONOMIS_DATA_MAPPINGS, LOGGER
 
 PAGE_LOGIN = "SYSWWW/LOGIN.XML"
 PAGE_MEASUREMENT = "PAGE214.XML"
