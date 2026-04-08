@@ -6,6 +6,7 @@ import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.const import CONF_IP_ADDRESS, CONF_PASSWORD, CONF_USERNAME
 from homeassistant.helpers import selector
+from slugify import slugify
 
 from .api import (
     AcondApiClient,
@@ -44,8 +45,6 @@ class AcondFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
                 LOGGER.exception(exception)
                 _errors["base"] = "unknown"
             else:
-                from slugify import slugify
-
                 await self.async_set_unique_id(
                     ## Do NOT use this in production code
                     ## The unique_id should never be something that can change

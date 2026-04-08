@@ -4,15 +4,20 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from homeassistant.const import EntityCategory
 from homeassistant.components.sensor import (
     SensorDeviceClass,
     SensorEntity,
     SensorEntityDescription,
     SensorStateClass,
 )
+from homeassistant.const import EntityCategory
 
-from .const import ACOND_ACONOMIS_DATA_MAPPINGS, AcondRegulationMode
+from .const import (
+    ACOND_ACONOMIS_DATA_MAPPINGS,
+    AcondOperatingMode,
+    AcondRegulationMode,
+    AcondSeasonMode,
+)
 from .data import AcondConfigEntry
 from .entity import AcondEntity
 
@@ -32,6 +37,29 @@ ACOND_ACONOMIS_ENTITY_DESCRIPTIONS = (
         options=[
             AcondRegulationMode.MANUALLY,
             AcondRegulationMode.EQUITHERM,
+        ],
+    ),
+    SensorEntityDescription(
+        key="OPERATING_MODE",
+        name="Operating Mode",
+        icon="mdi:heat-pump",
+        device_class=SensorDeviceClass.ENUM,
+        options=[
+            AcondOperatingMode.OFF,
+            AcondOperatingMode.AUTO,
+            AcondOperatingMode.HEATPUMP,
+            AcondOperatingMode.BIVALENCE,
+            AcondOperatingMode.COOLING,
+        ],
+    ),
+    SensorEntityDescription(
+        key="SEASON_MODE",
+        name="Season Mode",
+        icon="mdi:calendar",
+        device_class=SensorDeviceClass.ENUM,
+        options=[
+            AcondSeasonMode.SUMMER,
+            AcondSeasonMode.WINTER,
         ],
     ),
     # Power related sensors
@@ -201,5 +229,14 @@ class AcondSensor(AcondEntity, SensorEntity):
     @property
     def native_value(self) -> float | str | None:
         """Return the native value of the sensor."""
-        key = ACOND_ACONOMIS_DATA_MAPPINGS.get(self.entity_description.key)
-        return self.coordinator.data.get(key)
+        value = self.coordinator.data.get(
+            ACOND_ACONOMIS_DATA_MAPPINGS[self.entity_description.key]
+        )
+
+        match self.entity_description.key:
+            case "OPERATING_MODE":
+                value = AcondOperatingMode.from_value(value)
+            case "SEASON_MODE":
+                value = AcondSeasonMode.SUMMER if value else AcondSeasonMode.WINTER
+
+        return value

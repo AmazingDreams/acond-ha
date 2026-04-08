@@ -10,7 +10,7 @@ from homeassistant.components.binary_sensor import (
     BinarySensorEntityDescription,
 )
 
-from .const import ACOND_ACONOMIS_DATA_MAPPINGS, LOGGER
+from .const import ACOND_ACONOMIS_DATA_MAPPINGS
 from .entity import AcondEntity
 
 if TYPE_CHECKING:

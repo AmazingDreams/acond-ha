@@ -246,6 +246,9 @@ class AcondApiClient:
                 if name.endswith("f"):
                     value = float(value) or 0
 
+                if name.endswith("USINT_u"):
+                    value = int(value) or 0
+
                 if name.endswith("BOOL_i"):
                     value = bool(int(value)) or False
 

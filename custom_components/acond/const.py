@@ -1,6 +1,7 @@
 """Constants for acond."""
 
 from logging import Logger, getLogger
+from typing import ClassVar
 
 LOGGER: Logger = getLogger(__package__)
 
@@ -10,6 +11,13 @@ ATTRIBUTION = "Data provided by https://www.acond.cz/"
 HTTP_FOUND = 302
 
 
+class AcondSeasonMode:
+    """Operating modes for Acond Aconomis."""
+
+    SUMMER = "SUMMER"
+    WINTER = "WINTER"
+
+
 class AcondRegulationMode:
     """Operating modes for Acond Aconomis."""
 
@@ -17,11 +25,47 @@ class AcondRegulationMode:
     EQUITHERM = "EQUITHERM"
 
 
+class AcondOperatingMode:
+    """Operating modes for Acond Aconomis."""
+
+    OFF = "OFF"
+    AUTO = "AUTO"
+    HEATPUMP = "HEATPUMP"
+    BIVALENCE = "BIVALENCE"
+    COOLING = "COOLING"
+
+    VALUE_TO_MODE: ClassVar[dict[int, str]] = {
+        0: AUTO,
+        1: HEATPUMP,
+        3: BIVALENCE,
+        4: OFF,
+        6: COOLING,
+    }
+
+    MODE_TO_VALUE: ClassVar[dict[str, int]] = {
+        value: key for key, value in VALUE_TO_MODE.items()
+    }
+
+    @classmethod
+    def from_value(cls, value: int | None) -> str | None:
+        """Return the operating mode string for an API integer value."""
+        if value is None:
+            return None
+        return cls.VALUE_TO_MODE.get(value)
+
+    @classmethod
+    def to_value(cls, mode: str) -> int | None:
+        """Return the API integer value for a given operating mode string."""
+        return cls.MODE_TO_VALUE.get(mode)
+
+
 ACOND_ACONOMIS_DATA_MAPPINGS = {
     # Modes
     "REGULATION_MODE": "__TA9A7CFD0_STRING[10]_s",
     "MANUAL_TARGET_RETURN_WATER_TEMPERATURE": "__T61D2108E_REAL_.1f",
     "EQUITHERM_TARGET_RETURN_WATER_TEMPERATURE": "__TB1292215_REAL_.1f",
+    "OPERATING_MODE": "__TE87976A3_USINT_u",
+    "SEASON_MODE": "__TE4A78682_BOOL_i",
     # State
     "COMPRESSOR_ACTIVE": "__T61E4AC91_BOOL_i",
     "FAN_ACTIVE": "__TF4B3F468_BOOL_i",

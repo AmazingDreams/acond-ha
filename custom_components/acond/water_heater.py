@@ -7,7 +7,6 @@ from typing import TYPE_CHECKING
 from homeassistant.components.water_heater import (
     STATE_HEAT_PUMP,
     WaterHeaterEntity,
-    WaterHeaterEntityDescription,
     WaterHeaterEntityFeature,
 )
 from homeassistant.const import (
