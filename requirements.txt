@@ -4,4 +4,4 @@ pip>=26.0.1
 ruff==0.14.14
 
 beautifulsoup4==4.14.3
-lxml>=4.9.0
+lxml>=6.1.0
