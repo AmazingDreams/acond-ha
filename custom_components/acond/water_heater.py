@@ -15,7 +15,7 @@ from homeassistant.const import (
     UnitOfTemperature,
 )
 
-from .const import ACOND_ACONOMIS_DATA_MAPPINGS, AcondRegulationMode
+from .const import ACOND_ACONOMIS_DATA_MAPPINGS
 from .data import AcondConfigEntry
 from .entity import AcondEntity
 
@@ -38,78 +38,8 @@ async def async_setup_entry(
             AcondDomesticHotWaterHeater(
                 coordinator=entry.runtime_data.coordinator,
             ),
-            AcondHeatingWaterHeater(
-                coordinator=entry.runtime_data.coordinator,
-            ),
         )
     )
-
-
-class AcondHeatingWaterHeater(AcondEntity, WaterHeaterEntity):
-    """Acond Heating Water Heater class."""
-
-    def __init__(
-        self,
-        coordinator: AcondDataUpdateCoordinator,
-    ) -> None:
-        """Initialize the water heater class."""
-        super().__init__(coordinator)
-        self._attr_unique_id = "heating_water_heater"
-        self._attr_name = "Heating Water Heater"
-        self._attr_icon = "mdi:heating-coil"
-        self._attr_temperature_unit = UnitOfTemperature.CELSIUS
-        self._attr_min_temp = 20
-        self._attr_max_temp = 60
-
-    @property
-    def supported_features(self) -> WaterHeaterEntityFeature:
-        """Return the list of supported features."""
-        features = super().supported_features
-
-        if self.coordinator.get_regulation_mode() == AcondRegulationMode.MANUALLY:
-            features |= WaterHeaterEntityFeature.TARGET_TEMPERATURE
-
-        return features
-
-    @property
-    def current_temperature(self) -> float | None:
-        """Return the current temperature."""
-        return self.coordinator.data.get(
-            ACOND_ACONOMIS_DATA_MAPPINGS["INLET_TEMPERATURE"]
-        )
-
-    @property
-    def target_temperature(self) -> float | None:
-        """Return the target temperature."""
-        key = (
-            ACOND_ACONOMIS_DATA_MAPPINGS["MANUAL_TARGET_RETURN_WATER_TEMPERATURE"]
-            if self.coordinator.get_regulation_mode() == AcondRegulationMode.MANUALLY
-            else ACOND_ACONOMIS_DATA_MAPPINGS[
-                "EQUITHERM_TARGET_RETURN_WATER_TEMPERATURE"
-            ]
-        )
-
-        return self.coordinator.data.get(key)
-
-    @property
-    def current_operation(self):
-        """Return current operation ie. on, off."""
-        compressor_active = self.coordinator.is_compressor_active()
-        dhw_active = self.coordinator.is_dhw_active()
-
-        return STATE_HEAT_PUMP if compressor_active and not dhw_active else STATE_OFF
-
-    @property
-    def operation_list(self):
-        """Return the list of available operation modes."""
-        return [STATE_OFF, STATE_HEAT_PUMP]
-
-    async def async_set_temperature(self, **kwargs) -> None:
-        """Set new target temperature."""
-        if (temperature := kwargs.get(ATTR_TEMPERATURE)) is not None:
-            await self.coordinator.config_entry.runtime_data.client.async_set_heating_temperature(
-                temperature
-            )
 
 
 class AcondDomesticHotWaterHeater(AcondEntity, WaterHeaterEntity):

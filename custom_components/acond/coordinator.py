@@ -11,7 +11,7 @@ from .api import (
     AcondApiClientAuthenticationError,
     AcondApiClientError,
 )
-from .const import ACOND_ACONOMIS_DATA_MAPPINGS
+from .const import ACOND_ACONOMIS_DATA_MAPPINGS, AcondOperatingMode
 
 if TYPE_CHECKING:
     from .data import AcondConfigEntry
@@ -37,11 +37,15 @@ class AcondDataUpdateCoordinator(DataUpdateCoordinator):
         key = ACOND_ACONOMIS_DATA_MAPPINGS["REGULATION_MODE"]
         return self.data.get(key) if self.data else None
 
+    def get_operating_mode(self) -> str | None:
+        """Get current operating mode."""
+        key = ACOND_ACONOMIS_DATA_MAPPINGS["OPERATING_MODE"]
+        mode = self.data.get(key) if self.data else None
+        return AcondOperatingMode.from_value(mode) if mode else None
+
     def is_compressor_active(self) -> bool | None:
         """Get whether the heat pump is active."""
-
         key = ACOND_ACONOMIS_DATA_MAPPINGS["COMPRESSOR_ACTIVE"]
-
         return self.data.get(key) if self.data else None
 
     def is_dhw_active(self) -> bool | None:

@@ -28,6 +28,7 @@ PLATFORMS: list[Platform] = [
     Platform.BINARY_SENSOR,
     Platform.SENSOR,
     Platform.WATER_HEATER,
+    Platform.CLIMATE,
 ]
 
 UPDATE_INTERVAL = timedelta(seconds=5)
